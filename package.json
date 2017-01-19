@@ -1,0 +1,27 @@
+{
+  "name": "stock_market",
+  "version": "1.0.0",
+  "description": "Real time stock chart allowing users to add and remove stocks",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/makkoli/stock_market.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/makkoli/stock_market/issues"
+  },
+  "homepage": "https://github.com/makkoli/stock_market#readme",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "helmet": "^3.4.0",
+    "mongodb": "^2.2.21",
+    "mongoose": "^4.7.7",
+    "pug": "^2.0.0-beta6"
+  }
+}
