@@ -10,10 +10,12 @@ body {
 
 .stocks {
   margin: 0 auto;
+  padding: 25px;
   width: 75%;
   height: auto;
   background: #fff; }
   .stocks h1 {
-    font-family: "Nixie One", cursive; }
+    font-family: "Nixie One", cursive;
+    margin-bottom: 25px; }
 
 /*# sourceMappingURL=style.css.map */

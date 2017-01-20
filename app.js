@@ -3,8 +3,7 @@ var express = require('express'),
     bodyParser = require('body-parser'),
     helmet = require('helmet'),
     mongoose = require('mongoose'),
-    site = require('./routes/site')
-    env = require('./env/env'),
+    site = require('./routes/site'),
     app = express();
 
 var dbConnStr = 'mongodb://localhost:27017/stock';
@@ -30,6 +29,8 @@ app.use(helmet());
 
 // Home page
 app.get('/', site.index);
+
+app.post('/search', site.search);
 
 // https://api.intrinio.com/historical_data?identifier=AAPL&item=close_price&start_date=2016-01-01
 
