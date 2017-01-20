@@ -3,6 +3,9 @@ var env = require('../env/env'),
     Stock = require('../models/stock-model');
 
 // Get the stock data for a company
+// @symbol: stock symbol to search for
+// @invalidRenderCb: render callback if invalid stock symbol
+// @renderCb: render callback once stock symbol is retrieved
 exports.getStockData = function(symbol, invalidRenderCb, renderCb) {
     getStockFromDB(symbol, invalidRenderCb, renderCb);
 };
@@ -70,7 +73,7 @@ function getStockFromDB(symbol, invalidRenderCb, renderCb) {
 // Add a stock to the database
 addStock = function(symbol, data) {
     var newStock = new Stock({
-        symbol: symbol,
+        identifier: symbol,
         data: data,
         lastUpdate: new Date()
     });

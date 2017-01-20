@@ -4,7 +4,7 @@ var mongoose = require('mongoose'),
 // Stock schema in mongo
 var StockSchema = new Schema({
     // identifying symbol
-    symbol: {
+    identifier: {
         type: String,
         required: true,
         index: { unique: true }

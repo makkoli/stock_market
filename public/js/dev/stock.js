@@ -3,9 +3,27 @@ var Stocks = React.createClass({
     getInitialState: function() {
         return {
             searchSymbol: "",
-            stockSymbols: [],
+            stocks: [],
             invalid: false
         };
+    },
+
+    // Retrieve current stocks
+    componentDidMount: function() {
+        var self = this;
+
+        axios.get('/get-stocks')
+            .then(function(response) {
+                self.setState({
+                    stocks: response.data
+                });
+            })
+            .catch(function(error) {
+                console.log(error);
+                var errorNode = document.createElement('p');
+                errorNode.appendChild(document.createTextNode('Error with request'));
+                document.querySelector("#stocks").appendChild(errorNode);
+            });
     },
 
     // submit a search using ajax
@@ -30,7 +48,11 @@ var Stocks = React.createClass({
                 // Else, we got a valid response to the stock symbol
                 else {
                     self.setState({
-                        invalid: false
+                        invalid: false,
+                        stocks: self.state.stocks.concat([{
+                            identifier: response.data.identifier,
+                            data: response.data.data
+                        }])
                     });
                 }
             })
@@ -48,11 +70,42 @@ var Stocks = React.createClass({
     },
 
     render: function() {
+        console.log(this.state.stocks);
         return (
             <div>
+                <StocksContainer stocks={this.state.stocks} />
                 <SearchForm submit={this.submit}
                     searchChange={this.searchChange} />
                 <Invalid display={this.state.invalid} />
+            </div>
+        );
+    }
+});
+
+// Presentation container component holding all the stocks
+var StocksContainer = React.createClass({
+    render: function() {
+        var stocks = [];
+
+        this.props.stocks.forEach(function(stock) {
+            console.log(stock);
+            stocks.push(<Stock id={stock.identifier} key={stock.identifier} />);
+        });
+
+        return (
+            <div>
+                { stocks }
+            </div>
+        );
+    }
+});
+
+// Presentation component holding a single stock
+var Stock = React.createClass({
+    render: function() {
+        return (
+            <div>
+                { this.props.id }
             </div>
         );
     }
