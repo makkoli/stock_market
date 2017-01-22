@@ -14,6 +14,10 @@ var Stocks = React.createClass({
 
         axios.get('/get-stocks')
             .then(function(response) {
+                console.log(response);
+                response.data.forEach(function(stock) {
+                    stockChart.addStock(stock);
+                });
                 self.setState({
                     stocks: response.data
                 });
@@ -29,7 +33,18 @@ var Stocks = React.createClass({
     // submit a search using ajax
     submit: function(event) {
         event.preventDefault();
-        this.getSearch(this.state.searchSymbol);
+        var self = this;
+
+        // if stock is already present
+        if (this.state.stocks.some(function(stock) {
+            return self.state.searchSymbol === stock.identifier;
+        })) {
+            // do nothing
+        }
+        // else, retrieve new stock
+        else {
+            this.getSearch(this.state.searchSymbol);
+        }
     },
 
     // Sends a request to the server to get the locales
@@ -38,7 +53,6 @@ var Stocks = React.createClass({
 
         axios.post('/search/?symbol=' + searchSymbol, {})
             .then(function(response) {
-                console.log(response);
                 // Invalid symbol
                 if (response.data === 'invalid') {
                     self.setState({
@@ -47,6 +61,13 @@ var Stocks = React.createClass({
                 }
                 // Else, we got a valid response to the stock symbol
                 else {
+                    // Update chart
+                    stockChart.addStock({
+                        identifier: response.data.identifier,
+                        data: response.data.data
+                    });
+
+                    // Update state
                     self.setState({
                         invalid: false,
                         stocks: self.state.stocks.concat([{
@@ -69,11 +90,26 @@ var Stocks = React.createClass({
         this.setState({ searchSymbol: event.target.value });
     },
 
+    removeStock: function(stockId) {
+        var self = this;
+
+        axios.post('/remove-stock?symbol=' + stockId, {})
+            .then(function(response) {
+                stockChart.removeStock(stockId);
+
+                self.setState({
+                    stocks: self.state.stocks.filter(function(stock) {
+                        return stock.identifier !== stockId;
+                    })
+                });
+            });
+    },
+
     render: function() {
-        console.log(this.state.stocks);
         return (
             <div>
-                <StocksContainer stocks={this.state.stocks} />
+                <StocksContainer stocks={this.state.stocks}
+                    removeStock={this.removeStock} />
                 <SearchForm submit={this.submit}
                     searchChange={this.searchChange} />
                 <Invalid display={this.state.invalid} />
@@ -86,14 +122,15 @@ var Stocks = React.createClass({
 var StocksContainer = React.createClass({
     render: function() {
         var stocks = [];
+        var self = this;
 
         this.props.stocks.forEach(function(stock) {
-            console.log(stock);
-            stocks.push(<Stock id={stock.identifier} key={stock.identifier} />);
+            stocks.push(<Stock id={stock.identifier} key={stock.identifier}
+                removeStock={self.props.removeStock} />);
         });
 
         return (
-            <div>
+            <div className="stocks-container">
                 { stocks }
             </div>
         );
@@ -104,8 +141,12 @@ var StocksContainer = React.createClass({
 var Stock = React.createClass({
     render: function() {
         return (
-            <div>
+            <div className="stock">
                 { this.props.id }
+                <button type="button" className="close" aria-label="close"
+                    onClick={this.props.removeStock.bind(null, this.props.id)}>
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
         );
     }
@@ -122,7 +163,7 @@ var SearchForm = React.createClass({
                         onChange={this.props.searchChange} />
                 </div>
                 <button className="btn btn-primary" type="submit">
-                    Get Stock
+                    Add Stock
                 </button>
             </form>
         );

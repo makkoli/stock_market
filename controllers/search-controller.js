@@ -7,7 +7,7 @@ var env = require('../env/env'),
 // @invalidRenderCb: render callback if invalid stock symbol
 // @renderCb: render callback once stock symbol is retrieved
 exports.getStockData = function(symbol, invalidRenderCb, renderCb) {
-    getStockFromDB(symbol, invalidRenderCb, renderCb);
+    getStockFromAPI(symbol, invalidRenderCb, renderCb);
 };
 
 // Gets a stock from the initriox api
@@ -42,9 +42,21 @@ function getStockFromAPI(symbol, invalidRenderCb, renderCb) {
             }
             // Return stock data to render
             else {
-                renderCb(company);
+                var companyData = {
+                    identifier: company.identifier,
+                    data: {
+                        labels: company.data.map(function(closePrice) {
+                            return closePrice.date;
+                        }),
+                        value: company.data.map(function(closePrice) {
+                            return closePrice.value;
+                        })
+                    }
+                };
+                console.log(companyData);
+                renderCb(companyData);
                 // Add the stock to the database
-                addStock(company.identifier, company.data);
+                addStock(companyData);
             }
         });
     });
@@ -52,29 +64,11 @@ function getStockFromAPI(symbol, invalidRenderCb, renderCb) {
     request.end();
 };
 
-// Gets a stock from the database
-function getStockFromDB(symbol, invalidRenderCb, renderCb) {
-    var query = { symbol: symbol };
-
-    Stock.findOne(query, function(err, stock) {
-        if (err) return err;
-
-        // If no matching document retrieve the stock from the api
-        if (!stock) {
-            getStockFromAPI(symbol, invalidRenderCb, renderCb);
-        }
-        // Else, return the stock
-        else {
-            renderCb(stock);
-        }
-    });
-};
-
 // Add a stock to the database
-addStock = function(symbol, data) {
+addStock = function(company) {
     var newStock = new Stock({
-        identifier: symbol,
-        data: data,
+        identifier: company.identifier,
+        data: company.data,
         lastUpdate: new Date()
     });
 

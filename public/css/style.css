@@ -4,20 +4,36 @@
 
 body {
   margin-top: 100px;
+  margin-bottom: 100px;
   padding: 0;
   text-align: center;
   background: #dcdcdc; }
 
 .stocks {
   margin: 0 auto;
-  padding: 25px;
-  width: 75%;
+  padding: 20px;
+  width: 1000px;
   height: auto;
   background: #fff; }
   .stocks h1 {
     font-family: "Nixie One", cursive;
     margin-bottom: 25px; }
+  .stocks #chartContainer {
+    margin: 0 auto;
+    margin-bottom: 25px; }
   .stocks form {
     margin-top: 25px; }
+  .stocks .stocks-container {
+    width: 100%;
+    height: auto; }
+  .stocks .stock {
+    display: inline-block;
+    width: 15%;
+    height: auto;
+    margin-left: 30px;
+    background-color: #C8E6C9;
+    padding: 5px;
+    border-left: 5px solid #388E3C;
+    font-size: large; }
 
 /*# sourceMappingURL=style.css.map */

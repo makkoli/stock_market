@@ -36,7 +36,8 @@ app.get('/get-stocks', site.getStocks)
 // Search for a new stock
 app.post('/search', site.search);
 
-// https://api.intrinio.com/historical_data?identifier=AAPL&item=close_price&start_date=2016-01-01
+// Remove a stock
+app.post('/remove-stock', site.removeStock);
 
 var server = app.listen(8000, function() {
     var port = server.address().port;

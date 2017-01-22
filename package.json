@@ -24,7 +24,8 @@
     "helmet": "^3.4.0",
     "mongodb": "^2.2.21",
     "mongoose": "^4.7.7",
-    "pug": "^2.0.0-beta6"
+    "pug": "^2.0.0-beta6",
+    "ws": "^1.1.1"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0"

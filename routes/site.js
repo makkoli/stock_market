@@ -29,3 +29,11 @@ exports.search = function(req, res) {
         }
     );
 };
+
+// Remove a stock from the chart
+exports.removeStock = function(req, res) {
+    stockController.removeStock(req.query.symbol, function() {
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end();
+    });
+};
