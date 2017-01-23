@@ -1,5 +1,7 @@
 // Stocks container; handle state changes in applcation
 var Stocks = React.createClass({
+    ws: null, // websocket
+
     getInitialState: function() {
         return {
             searchSymbol: "",
@@ -28,6 +30,24 @@ var Stocks = React.createClass({
                 errorNode.appendChild(document.createTextNode('Error with request'));
                 document.querySelector("#stocks").appendChild(errorNode);
             });
+
+        // set up websocket
+        var host = window.document.location.host.replace(/:.*/, '');
+        this.ws = new WebSocket('ws://' + host + ':8000');
+        this.ws.onmessage = function(event) {
+            console.log(JSON.parse(event.data));
+            self.updateStocks(JSON.parse(event.data));
+            /*self.setState({
+                stocks: JSON.parse(event.data)
+            });*/
+        }
+    },
+
+    updateStocks: function(stocks) {
+        console.log('updating stocks');
+        this.setState({
+            stocks: stocks
+        });
     },
 
     // submit a search using ajax
@@ -83,6 +103,9 @@ var Stocks = React.createClass({
                 errorNode.appendChild(document.createTextNode('Error with request'));
                 document.querySelector("#stocks").appendChild(errorNode);
             });
+
+            // Update other clients
+            this.ws.send('');
     },
 
     // Update the search term as the user inputs it
@@ -103,6 +126,9 @@ var Stocks = React.createClass({
                     })
                 });
             });
+
+        // Send to websocket to update other clients
+        this.ws.send('');
     },
 
     render: function() {

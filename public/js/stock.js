@@ -4,6 +4,8 @@
 var Stocks = React.createClass({
     displayName: 'Stocks',
 
+    ws: null, // websocket
+
     getInitialState: function getInitialState() {
         return {
             searchSymbol: "",
@@ -29,6 +31,24 @@ var Stocks = React.createClass({
             var errorNode = document.createElement('p');
             errorNode.appendChild(document.createTextNode('Error with request'));
             document.querySelector("#stocks").appendChild(errorNode);
+        });
+
+        // set up websocket
+        var host = window.document.location.host.replace(/:.*/, '');
+        this.ws = new WebSocket('ws://' + host + ':8000');
+        this.ws.onmessage = function (event) {
+            console.log(JSON.parse(event.data));
+            self.updateStocks(JSON.parse(event.data));
+            /*self.setState({
+                stocks: JSON.parse(event.data)
+            });*/
+        };
+    },
+
+    updateStocks: function updateStocks(stocks) {
+        console.log('updating stocks');
+        this.setState({
+            stocks: stocks
         });
     },
 
@@ -83,6 +103,9 @@ var Stocks = React.createClass({
             errorNode.appendChild(document.createTextNode('Error with request'));
             document.querySelector("#stocks").appendChild(errorNode);
         });
+
+        // Update other clients
+        this.ws.send('');
     },
 
     // Update the search term as the user inputs it
@@ -102,6 +125,9 @@ var Stocks = React.createClass({
                 })
             });
         });
+
+        // Send to websocket to update other clients
+        this.ws.send('');
     },
 
     render: function render() {
@@ -179,7 +205,7 @@ var SearchForm = React.createClass({
             React.createElement(
                 'button',
                 { className: 'btn btn-primary', type: 'submit' },
-                'Get Stock'
+                'Add Stock'
             )
         );
     }

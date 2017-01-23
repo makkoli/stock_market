@@ -53,7 +53,6 @@ function getStockFromAPI(symbol, invalidRenderCb, renderCb) {
                         })
                     }
                 };
-                console.log(companyData);
                 renderCb(companyData);
                 // Add the stock to the database
                 addStock(companyData);

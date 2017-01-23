@@ -19,6 +19,10 @@ var stockChart = (function() {
                     }
                 }],
                 yAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: "Closing Price"
+                    },
                     ticks: {
                         beginAtZero: true
                     }
