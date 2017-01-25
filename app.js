@@ -35,15 +35,6 @@ app.use(helmet());
 // Home page
 app.get('/', site.index);
 
-// Retrieve current stocks
-app.get('/get-stocks', site.getStocks)
-
-// Search for a new stock
-app.post('/search', site.search);
-
-// Remove a stock
-app.post('/remove-stock', site.removeStock);
-
 // Start web socket server
 var wsServer = new WebSocket.Server({server: server});
 var wsClients = [];

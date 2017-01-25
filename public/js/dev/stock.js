@@ -20,48 +20,60 @@ var Stocks = React.createClass({
         this.ws.onmessage = function(event) {
             var companyStocks = JSON.parse(event.data);
 
-            console.log(event);
-            console.log(companyStocks);
             // Initialize page with stocks
             if (companyStocks.operation === "init") {
-                // Update chart with each stock
-                companyStocks.data.forEach(function(stock) {
-                    stockChart.addStock(stock);
-                });
-
-                self.setState({
-                    stocks: companyStocks.data
-                });
+                self.initStocksOnPage(companyStocks.data);
             }
             // Add a stock to the page
             else if (companyStocks.operation === "add") {
-                // invalid stock symbol
-                if (companyStocks.data === "invalid") {
-                    self.setState({
-                        invalid: true
-                    });
-                }
-                // else, add valid stock symbol
-                else {
-                    stockChart.addStock(companyStocks.data);
-
-                    self.setState({
-                        invalid: false,
-                        stocks: self.state.stocks.concat([companyStocks.data])
-                    });
-                }
+                self.addStockToPage(companyStocks.data);
             }
             // Remove a stock from the page
-            else {
-                stockChart.removeStock(companyStocks.data);
-
-                self.setState({
-                    stocks: self.state.stocks.filter(function(stock) {
-                        return stock.identifier !== companyStocks.data;
-                    })
-                });
+            else if (companyStocks.operation === "remove") {
+                self.removeStockFromPage(companyStocks.data);
             }
         }
+    },
+
+    // Initialize the stocks on the page
+    initStocksOnPage: function(stocks) {
+        stocks.forEach(function(stock) {
+            stockChart.addStock(stock);
+        });
+
+        this.setState({
+            stocks: stocks
+        });
+    },
+
+    // Add a new stock to the page
+    addStockToPage: function(stock) {
+        // invalid stock symbol
+        if (stock === "invalid") {
+            this.setState({
+                invalid: true
+            });
+        }
+        // else, add valid stock symbol
+        else {
+            stockChart.addStock(stock);
+
+            this.setState({
+                invalid: false,
+                stocks: this.state.stocks.concat([stock])
+            });
+        }
+    },
+
+    // Remove a stock from the page
+    removeStockFromPage: function(stockId) {
+        stockChart.removeStock(stockId);
+
+        this.setState({
+            stocks: this.state.stocks.filter(function(stock) {
+                return stock.identifier !== stockId;
+            })
+        });
     },
 
     // submit a search using ajax
@@ -77,49 +89,8 @@ var Stocks = React.createClass({
         }
         // else, retrieve new stock
         else {
-            //this.getSearch(this.state.searchSymbol);
             this.ws.send('add,' + this.state.searchSymbol);
         }
-    },
-
-    // Sends a request to the server to get the locales
-    getSearch: function(searchSymbol) {
-        var self = this;
-
-        /*axios.post('/search/?symbol=' + searchSymbol, {})
-            .then(function(response) {
-                // Invalid symbol
-                if (response.data === 'invalid') {
-                    self.setState({
-                        invalid: true
-                    });
-                }
-                // Else, we got a valid response to the stock symbol
-                else {
-                    // Update chart
-                    stockChart.addStock({
-                        identifier: response.data.identifier,
-                        data: response.data.data
-                    });
-
-                    // Update state
-                    self.setState({
-                        invalid: false,
-                        stocks: self.state.stocks.concat([{
-                            identifier: response.data.identifier,
-                            data: response.data.data
-                        }])
-                    });
-                }
-            })
-            .catch(function(error) {
-                console.log(error);
-                var errorNode = document.createElement('p');
-                errorNode.appendChild(document.createTextNode('Error with request'));
-                document.querySelector("#stocks").appendChild(errorNode);
-            });*/
-
-        this.ws.send('add,' + searchSymbol);
     },
 
     // Update the search term as the user inputs it
@@ -127,19 +98,8 @@ var Stocks = React.createClass({
         this.setState({ searchSymbol: event.target.value });
     },
 
+    // Remove a stock from the page
     removeStock: function(stockId) {
-        var self = this;
-
-        /*axios.post('/remove-stock?symbol=' + stockId, {})
-            .then(function(response) {
-                stockChart.removeStock(stockId);
-
-                self.setState({
-                    stocks: self.state.stocks.filter(function(stock) {
-                        return stock.identifier !== stockId;
-                    })
-                });
-            });*/
         this.ws.send('remove,' + stockId);
     },
 
