@@ -6,6 +6,8 @@ var express = require('express'),
     site = require('./routes/site'),
     WebSocket = require('ws'),
     StockModel = require('./models/stock-model'),
+    StockController = require('./controllers/stock-controller'),
+    SearchController = require('./controllers/search-controller'),
     app = express(),
     server = require('http').createServer();
 
@@ -46,26 +48,56 @@ app.post('/remove-stock', site.removeStock);
 var wsServer = new WebSocket.Server({server: server});
 var wsClients = [];
 wsServer.on('connection', function(ws) {
-    wsClients.push(ws);
-    // Send all the stocks once a client has changed one of them
-    ws.on('message', function() {
-        StockModel.find({}, function(err, docs) {
-            if (err) console.log(err);
+    wsClients.push(ws); // add client
 
-            var stocks = [];
+    // initialize by getting the stocks
+    StockController.getStocks(function(stocks) {
+        var data = {
+            operation: "init",
+            data: stocks
+        };
+        ws.send(JSON.stringify(data));
+    });
+    // Take the appropriate action depending on what the client sends
+    ws.on('message', function(data) {
+        var data = data.split(',');
+        var operation = data[0];
+        var symbol = data[1];
 
-            docs.forEach(function(stock) {
-                stocks.push({
-                    identifier: stock.identifier,
-                    data: stock.data
+        // add a stock
+        if (operation === "add") {
+            SearchController.addStockData(symbol,
+                function() {
+                    var data = {
+                        operation: "add",
+                        data: "invalid"
+                    };
+                    ws.send(JSON.stringify(data));
+                }, function(stock) {
+                    var data = {
+                        operation: "add",
+                        data: stock
+                    };
+
+                    // send added stock to all clients
+                    wsClients.forEach(function(ws) {
+                        ws.send(JSON.stringify(data));
+                    })
+                });
+        }
+        // else, remove it
+        else {
+            StockController.removeStock(symbol, function(symbol) {
+                var data = {
+                    operation: "remove",
+                    data: symbol
+                }
+
+                wsClients.forEach(function(ws) {
+                    ws.send(JSON.stringify(data));
                 });
             });
-
-            // Send to all clients
-            wsClients.forEach(function(ws) {
-                ws.send(JSON.stringify(stocks));
-            });
-        });
+        }
     });
 
     // Remove ws from client list once user leaves

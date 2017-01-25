@@ -14,40 +14,54 @@ var Stocks = React.createClass({
     componentDidMount: function() {
         var self = this;
 
-        axios.get('/get-stocks')
-            .then(function(response) {
-                console.log(response);
-                response.data.forEach(function(stock) {
-                    stockChart.addStock(stock);
-                });
-                self.setState({
-                    stocks: response.data
-                });
-            })
-            .catch(function(error) {
-                console.log(error);
-                var errorNode = document.createElement('p');
-                errorNode.appendChild(document.createTextNode('Error with request'));
-                document.querySelector("#stocks").appendChild(errorNode);
-            });
-
         // set up websocket
         var host = window.document.location.host.replace(/:.*/, '');
         this.ws = new WebSocket('ws://' + host + ':8000');
         this.ws.onmessage = function(event) {
-            console.log(JSON.parse(event.data));
-            self.updateStocks(JSON.parse(event.data));
-            /*self.setState({
-                stocks: JSON.parse(event.data)
-            });*/
-        }
-    },
+            var companyStocks = JSON.parse(event.data);
 
-    updateStocks: function(stocks) {
-        console.log('updating stocks');
-        this.setState({
-            stocks: stocks
-        });
+            console.log(event);
+            console.log(companyStocks);
+            // Initialize page with stocks
+            if (companyStocks.operation === "init") {
+                // Update chart with each stock
+                companyStocks.data.forEach(function(stock) {
+                    stockChart.addStock(stock);
+                });
+
+                self.setState({
+                    stocks: companyStocks.data
+                });
+            }
+            // Add a stock to the page
+            else if (companyStocks.operation === "add") {
+                // invalid stock symbol
+                if (companyStocks.data === "invalid") {
+                    self.setState({
+                        invalid: true
+                    });
+                }
+                // else, add valid stock symbol
+                else {
+                    stockChart.addStock(companyStocks.data);
+
+                    self.setState({
+                        invalid: false,
+                        stocks: self.state.stocks.concat([companyStocks.data])
+                    });
+                }
+            }
+            // Remove a stock from the page
+            else {
+                stockChart.removeStock(companyStocks.data);
+
+                self.setState({
+                    stocks: self.state.stocks.filter(function(stock) {
+                        return stock.identifier !== companyStocks.data;
+                    })
+                });
+            }
+        }
     },
 
     // submit a search using ajax
@@ -63,7 +77,8 @@ var Stocks = React.createClass({
         }
         // else, retrieve new stock
         else {
-            this.getSearch(this.state.searchSymbol);
+            //this.getSearch(this.state.searchSymbol);
+            this.ws.send('add,' + this.state.searchSymbol);
         }
     },
 
@@ -71,7 +86,7 @@ var Stocks = React.createClass({
     getSearch: function(searchSymbol) {
         var self = this;
 
-        axios.post('/search/?symbol=' + searchSymbol, {})
+        /*axios.post('/search/?symbol=' + searchSymbol, {})
             .then(function(response) {
                 // Invalid symbol
                 if (response.data === 'invalid') {
@@ -102,10 +117,9 @@ var Stocks = React.createClass({
                 var errorNode = document.createElement('p');
                 errorNode.appendChild(document.createTextNode('Error with request'));
                 document.querySelector("#stocks").appendChild(errorNode);
-            });
+            });*/
 
-            // Update other clients
-            this.ws.send('');
+        this.ws.send('add,' + searchSymbol);
     },
 
     // Update the search term as the user inputs it
@@ -116,7 +130,7 @@ var Stocks = React.createClass({
     removeStock: function(stockId) {
         var self = this;
 
-        axios.post('/remove-stock?symbol=' + stockId, {})
+        /*axios.post('/remove-stock?symbol=' + stockId, {})
             .then(function(response) {
                 stockChart.removeStock(stockId);
 
@@ -125,10 +139,8 @@ var Stocks = React.createClass({
                         return stock.identifier !== stockId;
                     })
                 });
-            });
-
-        // Send to websocket to update other clients
-        this.ws.send('');
+            });*/
+        this.ws.send('remove,' + stockId);
     },
 
     render: function() {

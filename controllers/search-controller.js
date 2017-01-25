@@ -6,7 +6,7 @@ var env = require('../env/env'),
 // @symbol: stock symbol to search for
 // @invalidRenderCb: render callback if invalid stock symbol
 // @renderCb: render callback once stock symbol is retrieved
-exports.getStockData = function(symbol, invalidRenderCb, renderCb) {
+exports.addStockData = function(symbol, invalidRenderCb, renderCb) {
     getStockFromAPI(symbol, invalidRenderCb, renderCb);
 };
 

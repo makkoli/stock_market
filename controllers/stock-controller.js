@@ -1,8 +1,8 @@
 var Stock = require('../models/stock-model');
 
 // Gets all the stocks currently stored in the database
-exports.getStocks = function(renderCb) {
-    Stock.find({}, function(err, docs) {
+exports.getStocks = function(cb) {
+    Stock.find({}).sort({ lastUpdated: -1 }).exec(function(err, docs) {
         if (err) console.log(err);
 
         var stocks = [];
@@ -13,18 +13,18 @@ exports.getStocks = function(renderCb) {
                 data: stock.data
             });
         });
-        renderCb(stocks);
-    })
+        cb(stocks);
+    });
 };
 
 // Remove a stock from the database
-exports.removeStock = function(symbol, renderCb) {
+exports.removeStock = function(symbol, cb) {
     var query = { identifier: symbol };
 
     Stock.findOne(query, function(err, doc) {
         if (err) console.log(err);
 
         doc.remove();
-        renderCb();
+        cb(symbol);
     })
 };
