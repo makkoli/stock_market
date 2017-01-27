@@ -11,7 +11,7 @@ var express = require('express'),
     app = express(),
     server = require('http').createServer();
 
-var dbConnStr = 'mongodb://localhost:27017/stock';
+var dbConnStr = process.env.MONGOLAB_URI || 'mongodb://localhost:27017/stock';
 // Connect mongoose to db
 mongoose.connect(dbConnStr, function(err) {
     if (err)

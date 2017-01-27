@@ -1,4 +1,4 @@
-var env = require('../env/env'),
+var //env = require('../env/env'),
     https = require('https'),
     Stock = require('../models/stock-model');
 
@@ -17,9 +17,11 @@ function getStockFromAPI(symbol, invalidRenderCb, renderCb) {
     var date = (new Date().getDate()).toString();
 
     var startDate = year + '-' + month + '-' + date;
+    var intrinioUser = process.env.INTRINIO_USER || env.env.intrinioUser;
+    var intrinioPass = process.env.INTRINIO_PASS || env.env.intrinioPass;
 
-    var auth = "Basic " + new Buffer(env.env.intrinioUser + ':'
-        + env.env.intrinioPass).toString('base64');
+    var auth = "Basic " + new Buffer(intrinioUser + ':'
+        + intrinioPass).toString('base64');
 
     var request = https.request({
         method: "GET",
