@@ -12,6 +12,7 @@ var express = require('express'),
     server = require('http').createServer();
 
 var dbConnStr = process.env.MONGOLAB_URI || 'mongodb://localhost:27017/stock';
+var port = process.env.PORT || 8000;
 // Connect mongoose to db
 mongoose.connect(dbConnStr, function(err) {
     if (err)
@@ -101,7 +102,7 @@ wsServer.on('connection', function(ws) {
 
 // Start server
 server.on('request', app);
-server.listen(8000, function() {
+server.listen(port, function() {
     var port = server.address().port;
     console.log('Express server listening on port %s.', port);
 });
