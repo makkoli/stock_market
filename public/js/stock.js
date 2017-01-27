@@ -93,7 +93,7 @@ var Stocks = React.createClass({
 
         // else, retrieve new stock
         else {
-                this.ws.send('add,' + this.state.searchSymbol);
+                self.ws.send('add,' + this.state.searchSymbol);
             }
     },
 
