@@ -20,7 +20,7 @@ var Stocks = React.createClass({
 
         // set up websocket
         var host = window.document.location.host.replace(/:.*/, '');
-        this.ws = new WebSocket('ws://' + host + ':8000');
+        this.ws = new WebSocket('wss://' + host);
         this.ws.onmessage = function (event) {
             var companyStocks = JSON.parse(event.data);
 
